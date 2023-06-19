@@ -1,0 +1,47 @@
+version: "3.5"
+name: "Canoe"
+
+services:
+    laravel:
+        container_name: "laravel"
+        image: laravel
+        build:
+            context: ./docker/laravel/
+        volumes:
+            - ./:/var/www/html
+            - ./docker/config/laravel.conf:/etc/apache2/sites-enabled/laravel.conf:ro
+        networks:
+            - backend
+        expose:
+            - "80"
+        ports:
+            - "80:80"
+    mysql:
+        container_name: "mysql"
+        image: mysql/mysql-server
+        restart: always
+        environment:
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_ROOT_PASSWORD: test
+            MYSQL_DATABASE: canoe
+        expose:
+            - "3306"
+        ports:
+            - "3306:3306"
+        networks:
+            - backend
+        volumes:
+            - ./docker/mysql_data:/var/lib/mysql
+
+    mailpit:
+        image: 'axllent/mailpit:latest'
+        container_name: mailpit
+        restart: unless-stopped
+        ports:
+            - '1025:1025'
+            - '8025:8025'
+        networks:
+            - backend
+
+networks:
+    backend:
